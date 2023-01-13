@@ -720,7 +720,6 @@ static void graph_info(hash_table_t *hash_table)
 
   // free the list of vertices
   free(list_of_vertices);
-
 }
 
 
