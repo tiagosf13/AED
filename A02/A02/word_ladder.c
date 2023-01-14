@@ -717,10 +717,10 @@ static void graph_info(hash_table_t *hash_table)
       }
     }
   }
-  printf("numvisited %d\n", num_visited);
+  printf("Number of words stored %d\n", num_visited);
 
   // print the size of the hash table
-  printf("Size of the hash table: %d\n", hash_table->hash_table_size);
+  printf("Size of the hash_table: %d\n", hash_table->hash_table_size);
 
   // print the number of nodes in the graph
   printf("Number of nodes in the graph: %d\n", num_visited);
