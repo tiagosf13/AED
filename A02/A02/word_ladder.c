@@ -247,7 +247,6 @@ static void hash_table_grow(hash_table_t *hash_table)   // FEITO
   {
     hash_table_node_t *node;
     node = hash_table->heads[i];
-    //printf  ("grow dentro\n");
     while(node != NULL)
     {
       index = crc32(node->word) % new_size; // hash function
@@ -265,18 +264,16 @@ static void hash_table_grow(hash_table_t *hash_table)   // FEITO
         new_hash_array[index] ->previous = node;
         node->next = new_hash_array[index] ;
         new_hash_array[index]  = node;
-        //printf  ("colisao\n");
       }
       conta++;
       node = nextNode;
     }
   }
 
-  //free(hash_table->heads);
+  free(hash_table->heads);
   hash_table->heads = new_hash_array;
   hash_table->hash_table_size = new_size;
   hash_table->number_of_entries = conta;
-  //printf  ("grow saiu\n");
 }
 
 static hash_table_node_t *find_word(hash_table_t *hash_table,const char *word,int insert_if_not_found)
@@ -567,7 +564,7 @@ static void list_connected_component(hash_table_t *hash_table,const char *word)
   representative = find_representative(node);
 
   // get number of nodes connected to the component
-  int num_nodes = representative->number_of_vertices; 
+  int num_nodes = representative->number_of_vertices;
   printf("Number of nodes in the connected component: %d\n", num_nodes);
 
   // allocate list of vertices
@@ -697,7 +694,6 @@ static void graph_info(hash_table_t *hash_table)
   // get number of nodes connected to the component
   int num_nodes = hash_table->number_of_entries;
   int num_visited = 0;
-  int conta = 0;
 
   // allocate list of vertices
   hash_table_node_t **list_of_vertices = malloc(num_nodes * sizeof(hash_table_node_t *));
@@ -710,9 +706,9 @@ static void graph_info(hash_table_t *hash_table)
     if(hash_table->heads[i] != NULL)
     {
       hash_table_node_t *node = hash_table->heads[i];
-      while (node != NULL) {
+      while (node != NULL) 
+      {
         num_visited ++;
-        //printf("node->head %s\n", node->head->vertex->word);
         if(node != NULL && node->head != NULL)
         {
           num_connected_components++;
@@ -728,9 +724,6 @@ static void graph_info(hash_table_t *hash_table)
 
   // print the number of nodes in the graph
   printf("Number of nodes in the graph: %d\n", num_visited);
-
-
-  printf("conta %d", conta);
 
   printf("Number of connected components: %d\n", num_connected_components);
 /*
@@ -802,12 +795,6 @@ int main(int argc,char **argv)
     for(node = hash_table->heads[i];node != NULL;node = node->next)
     {
       similar_words(hash_table,node);
-      //printf("similar_words: %s",node->word);
-      //if(node->head != NULL )
-        //printf(" %s\n",node->head->vertex->head->vertex-> word);
-      
-      //printf(" \n");
-      
     }
   }
   graph_info(hash_table);
