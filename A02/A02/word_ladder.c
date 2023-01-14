@@ -228,35 +228,55 @@ static void hash_table_grow(hash_table_t *hash_table)   // FEITO
   hash_table_node_t **new_hash_array;
   size_t new_size = hash_table->hash_table_size * 2;
   unsigned int index;
-
+  hash_table_node_t *nextNode;
+  int conta = 0;
+  
   new_hash_array = (hash_table_node_t **)malloc(new_size* sizeof(hash_table_node_t *));
   if (new_hash_array == NULL)
   {
     fprintf(stderr,"create_hash_table: out of memory\n");
     exit(1);
   }
-
+//printf  ("grow\n");
   for(unsigned int i = 0; i< new_size;i++)
   {
     new_hash_array[i] = NULL;
   }
-  
+  hash_table->number_of_entries =0;
   for(unsigned int i = 0u; i< hash_table->hash_table_size;i++)
   {
     hash_table_node_t *node;
     node = hash_table->heads[i];
+    //printf  ("grow dentro\n");
     while(node != NULL)
     {
       index = crc32(node->word) % new_size; // hash function
-      hash_table_node_t *next_node;
-      next_node = node->next;
-      new_hash_array[index] = node;
-      node = next_node;
+      nextNode = node->next;
+
+      if(new_hash_array[index]  == NULL)
+      {
+        new_hash_array[index]  = node;
+        node->previous = NULL;
+        node->next = NULL;
+
+      }
+      else
+      {
+        new_hash_array[index] ->previous = node;
+        node->next = new_hash_array[index] ;
+        new_hash_array[index]  = node;
+        //printf  ("colisao\n");
+      }
+      conta++;
+      node = nextNode;
     }
   }
-  free(hash_table->heads);
+
+  //free(hash_table->heads);
   hash_table->heads = new_hash_array;
   hash_table->hash_table_size = new_size;
+  hash_table->number_of_entries = conta;
+  //printf  ("grow saiu\n");
 }
 
 static hash_table_node_t *find_word(hash_table_t *hash_table,const char *word,int insert_if_not_found)
@@ -271,7 +291,10 @@ static hash_table_node_t *find_word(hash_table_t *hash_table,const char *word,in
   for(node = hash_table->heads[i]; node != NULL; node = node->next)
   {
     if(strcmp(node->word,word) == 0)
+    { 
+      //printf("found word %s\n",word);
       return node;
+    }
   }
   if(insert_if_not_found == 1)
   {
@@ -283,9 +306,19 @@ static hash_table_node_t *find_word(hash_table_t *hash_table,const char *word,in
     node->representative = node;  // initially, each word is its own representative
     node->number_of_edges = 0u;  // initially, each word has no edges
     node->number_of_vertices = 1u; // initially, each word is a vertex in its own graph
-    node->next = hash_table->heads[i];
-    hash_table->heads[i] = node;
+    node->next = NULL;
+    if(hash_table->heads[i] == NULL)
+    {
+      hash_table->heads[i] = node;
+    }
+    else
+    {
+      hash_table->heads[i]->previous = node;
+      node->next = hash_table->heads[i];
+      hash_table->heads[i] = node;
+    }
     hash_table->number_of_entries++;
+    //printf ("word %s added\n",word);  
     if(hash_table->number_of_entries > hash_table->hash_table_size / 2u)
     {
       hash_table_grow(hash_table);
@@ -336,6 +369,7 @@ static void add_edge(hash_table_t *hash_table,hash_table_node_t *from,const char
     //printf("add_edge: word %s not found\n",word);
     return;
   }
+  //printf("from->word %s to->word %s word %s\n", from->word, to->word, word);
 
   hash_table->number_of_edges++;
 
@@ -534,6 +568,7 @@ static void list_connected_component(hash_table_t *hash_table,const char *word)
 
   // get number of nodes connected to the component
   int num_nodes = representative->number_of_vertices; 
+  printf("Number of nodes in the connected component: %d\n", num_nodes);
 
   // allocate list of vertices
   hash_table_node_t **list_of_vertices = malloc(num_nodes * sizeof(hash_table_node_t *));
@@ -541,6 +576,7 @@ static void list_connected_component(hash_table_t *hash_table,const char *word)
 
   // do the bfs traversal
   int num_visited = breadh_first_search(num_nodes, list_of_vertices, representative, NULL);
+
 
   // print the nodes in the list of vertices
   for (int i = 0; i < num_visited; i++) {
@@ -661,34 +697,43 @@ static void graph_info(hash_table_t *hash_table)
   // get number of nodes connected to the component
   int num_nodes = hash_table->number_of_entries;
   int num_visited = 0;
+  int conta = 0;
 
   // allocate list of vertices
   hash_table_node_t **list_of_vertices = malloc(num_nodes * sizeof(hash_table_node_t *));
 
+  // print the number of connected components
+  int num_connected_components = 0;
   // do the bfs traversal
-  for(unsigned int i = 0; i < hash_table->number_of_entries; i++)
+  for(unsigned int i = 0; i < hash_table->hash_table_size; i++)
   {
     if(hash_table->heads[i] != NULL)
     {
-      num_visited += breadh_first_search(num_nodes, list_of_vertices, hash_table->heads[i], NULL);
-      break;
+      hash_table_node_t *node = hash_table->heads[i];
+      while (node != NULL) {
+        num_visited ++;
+        //printf("node->head %s\n", node->head->vertex->word);
+        if(node != NULL && node->head != NULL)
+        {
+          num_connected_components++;
+        }
+        node = node->next;
+      }
     }
   }
+  printf("numvisited %d\n", num_visited);
+
+  // print the size of the hash table
+  printf("Size of the hash table: %d\n", hash_table->hash_table_size);
 
   // print the number of nodes in the graph
   printf("Number of nodes in the graph: %d\n", num_visited);
 
-  // print the number of connected components
-  int num_connected_components = 0;
 
-  for (int i = 0; i < num_visited; i++) {
-    if (list_of_vertices[i]->previous == NULL) {
-      num_connected_components++;
-    }
-  }
+  printf("conta %d", conta);
 
   printf("Number of connected components: %d\n", num_connected_components);
-
+/*
   // print the number of nodes in the largest connected component
   int largest_connected_component = 0;
 
@@ -699,9 +744,10 @@ static void graph_info(hash_table_t *hash_table)
         largest_connected_component = num_nodes_in_component;
       }
     }
+    printf("num_nodes_in_component %d\n", connected_component_diameter(list_of_vertices[i]));
   }
   printf("Number of nodes in the largest connected component: %d\n", largest_connected_component);
-
+*/
   // print the diameter of the largest connected component
   printf("Diameter of the largest connected component: %d\n", largest_diameter);
 
@@ -756,6 +802,12 @@ int main(int argc,char **argv)
     for(node = hash_table->heads[i];node != NULL;node = node->next)
     {
       similar_words(hash_table,node);
+      //printf("similar_words: %s",node->word);
+      //if(node->head != NULL )
+        //printf(" %s\n",node->head->vertex->head->vertex-> word);
+      
+      //printf(" \n");
+      
     }
   }
   graph_info(hash_table);
