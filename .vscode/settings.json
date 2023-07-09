@@ -1,0 +1,25 @@
+{
+    "files.associations": {
+        "iostream": "cpp",
+        "array": "c",
+        "*.tcc": "c",
+        "algorithm": "c",
+        "random": "c",
+        "numeric": "c",
+        "string.h": "c",
+        "string": "cpp",
+        "unordered_map": "cpp",
+        "memory": "cpp",
+        "string_view": "cpp",
+        "istream": "cpp",
+        "ostream": "cpp",
+        "sstream": "cpp",
+        "streambuf": "cpp",
+        "functional": "cpp",
+        "tuple": "cpp",
+        "system_error": "c",
+        "type_traits": "c",
+        "utility": "c",
+        "math.h": "c"
+    }
+}

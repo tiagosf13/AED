@@ -1,0 +1,108 @@
+Compilar e Executar (C)
+
+-Wextra inclui -Wsign-compare
+
+Windows
+	Compilar : gcc -Wall -Wextra source_file.c
+	Executar : 	     .\a.exe
+
+	Executar : cc -Wall source_file.c -o executable_name
+		     
+
+char*s == char s[]
+
+argv é um array de ponteiros para strings
+
+argv tem argc elementos
+
+argv[0] -> nome do executável
+
+se (argc > 1) então argv[1] -> 1º argumento, etc
+
+o terminador de uma string é "\0" EX: "Tiago\0", e significa que na memória, indica onde termina a string
+
+---------------------------------------------------------------------------------------------------------------
+
+Percorrer uma string até encontrar o "terminador"
+
+for (size_t i = 0; string[i] != "\0"; i++){...}
+
+---------------------------------------------------------------------------------------------------------------
+
+Passagem de arrays como argumentos para funções
+
+int f1(char *string) ( ou seja, char *string == char s[])		int f2(char string[])
+
+int f3(int *a, size_t n)							int f4(int a[], size_t n){...}
+
+---------------------------------------------------------------------------------------------------------------
+
+Ponteiros
+
+int x = 0; (variavel na memoria)
+int y = 0; (variavel na memoria)
+
+
+int* a = &x; ( a é o ponteiro de x)
+int* b = &y; ( b é o ponteiro de y)
+
+void f1(int a, int b){
+    a = 10;
+    b = 100;
+}
+
+void f2(int *a, int *b){
+    *a = 1000; // estamos a alterar o valor da variavel a que o ponteiro *a aponta  (neste caso chamamos a função f2 com x = 0 e y = 1), ou se
+    *b = 10000; //  ou seja, estamos a mudar o valor da variavel x
+}
+
+int main(void){
+    int x = 0;
+    int y = 1;
+    f1(x, y); // estamos a enviar os valores de x e y para a função f1
+    printf("%d %d\n", x, y); // aqui estamos a imprimir os valores da variavel x e y na função main (0 e 1) CALL-BY-VALUE
+
+    f2(&x, &y); // estamos a enviar os ponteiros de x e y para a função f2
+    printf("%d %d\n", x, y); // aqui estamos a imprimir os valores da variavel x e y na função main (1000 e 10000) CALL-BY-REFERENCE
+                             // ou seja, mudamos os valores de x e y em f2, o que muda de f1 para f2?
+
+}
+
+--------------------------------------------------------------------------------------------------------------
+
+atribuir espaço na memoria de um número int
+
+int* array = malloc(n * sizeof(int))
+
+libertar espaço na memória free
+
+--------------------------------------------------------------------------------------------------------------
+
+C++
+
+Compilador
+
+-Wextra inclui -Wsign-compare
+
+Windows
+	Compilar : gcc++ -Wall -Wextra source_file.c
+	Executar : 	     .\a.exe
+
+	Executar : cc -Wall source_file.c -o executable_name
+
+
+Diferenças de C para C++:
+C	#include<stdio>		input/output
+C++	#include<iostream>	input/output
+
+cin --> standard input
+cout --> standard output
+
+cout << (<< significa "put to")
+cin << (<< significa "get from")
+
+-----------------------------------------------------------------------------------------------------------
+
+Para definir uma constante na compilação
+
+g++ -DALSO_USE_PRINTF -Wall ...  (sendo ALSO_USE_PRINTF o nome da constante)
